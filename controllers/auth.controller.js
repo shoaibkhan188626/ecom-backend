@@ -1,7 +1,16 @@
-import asyncHandler from '../utils/asyncHandler.js';
-import AppError from '../utils/appError.js';
-import { registerUser, loginUser, refreshAuthToken } from '../services/auth.service.js';
-import { validate, registerUserSchema, loginUserSchema } from '../validators/user.schema.js';
+import asyncHandler from "../utils/asyncHandler.js";
+import AppError from "../utils/appError.js";
+import {
+  registerUser,
+  loginUser,
+  refreshAuthToken,
+  logoutUser,
+} from "../services/auth.service.js";
+import {
+  validate,
+  registerUserSchema,
+  loginUserSchema,
+} from "../validators/user.schema.js";
 
 export const register = asyncHandler(async (req, res) => {
   const data = validate(registerUserSchema)(req.body);
@@ -9,7 +18,7 @@ export const register = asyncHandler(async (req, res) => {
   const user = await registerUser(data);
 
   res.status(201).json({
-    status: 'success',
+    status: "success",
     data: {
       user,
     },
@@ -25,7 +34,7 @@ export const login = asyncHandler(async (req, res) => {
   });
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: {
       user,
       accessToken,
@@ -35,16 +44,21 @@ export const login = asyncHandler(async (req, res) => {
 });
 
 export const refresh = asyncHandler(async (req, res) => {
-  const refreshToken = req.body?.refreshToken || req.headers['x-refresh-token'];
+  const refreshToken = req.body?.refreshToken || req.headers["x-refresh-token"];
 
   if (!refreshToken) {
-    throw new AppError('refresh token required', 400);
+    throw new AppError("refresh token required", 400);
   }
 
   const tokens = await refreshAuthToken(refreshToken);
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: tokens,
   });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  await logoutUser(req.auth.userId);
+  res.status(204).send();
 });

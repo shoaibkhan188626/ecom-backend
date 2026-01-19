@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import User from '../models/user.model.js';
-import AppError from '../utils/appError.js';
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import User from "../models/user.model.js";
+import AppError from "../utils/appError.js";
 
 /* -------------------------------------------------
    TOKEN HELPERS
@@ -17,7 +17,8 @@ const signRefreshToken = (payload) =>
     expiresIn: process.env.JWT_REFRESH_EXPIRES,
   });
 
-const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
 
 /* -------------------------------------------------
    REGISTER USER
@@ -27,7 +28,7 @@ export const registerUser = async ({ email, password, phone }) => {
   const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    throw new AppError('Email already registered', 409);
+    throw new AppError("Email already registered", 409);
   }
 
   const user = new User({
@@ -46,18 +47,18 @@ export const registerUser = async ({ email, password, phone }) => {
 -------------------------------------------------- */
 
 export const loginUser = async ({ email, password, ip }) => {
-  const user = await User.findOne({ email }).select('+passwordHash');
+  const user = await User.findOne({ email }).select("+passwordHash");
 
   if (!user) {
-    throw new AppError('Invalid credentials', 401);
+    throw new AppError("Invalid credentials", 401);
   }
 
   if (!user.isActive || user.isBlocked) {
-    throw new AppError('Account is disabled', 403);
+    throw new AppError("Account is disabled", 403);
   }
 
   if (user.isAccountLocked()) {
-    throw new AppError('Account temporarily locked', 423);
+    throw new AppError("Account temporarily locked", 423);
   }
 
   const passwordMatch = await user.comparePassword(password);
@@ -65,7 +66,7 @@ export const loginUser = async ({ email, password, ip }) => {
   if (!passwordMatch) {
     user.markLoginFailure();
     await user.save();
-    throw new AppError('Invalid credentials', 401);
+    throw new AppError("Invalid credentials", 401);
   }
 
   user.markLoginSuccess(ip);
@@ -102,7 +103,7 @@ export const refreshAuthToken = async (refreshToken) => {
   try {
     payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   } catch {
-    throw new AppError('Invalid refresh token', 401);
+    throw new AppError("Invalid refresh token", 401);
   }
 
   const hashedToken = hashToken(refreshToken);
@@ -113,7 +114,7 @@ export const refreshAuthToken = async (refreshToken) => {
   });
 
   if (!user) {
-    throw new AppError('Refresh token reuse detected', 401);
+    throw new AppError("Refresh token reuse detected", 401);
   }
 
   // Rotate token
@@ -133,4 +134,12 @@ export const refreshAuthToken = async (refreshToken) => {
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
   };
+};
+
+export const logoutUser = async (userId) => {
+  const user = await User.findById(userId).select("+refreshTokenHash");
+
+  if (!user) return;
+  user.refreshTokenHash = undefined;
+  await user.save();
 };
