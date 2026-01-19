@@ -1,0 +1,26 @@
+{
+  // 1. Stop WATCHING files (Saves CPU, does NOT break IntelliSense)
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/objects/**": true,
+    "**/build/**": true,
+    "**/dist/**": true
+  },
+  // 2. Stop SEARCHING (Ctrl+F) inside dependencies
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/package-lock.json": true
+  },
+  // 3. ENABLE Automatic Type Acquisition (ATA)
+  // IMPORTANT: Set this to FALSE if you installed @types manually (Step 1),
+  // or TRUE if you want VS Code to try and download them automatically.
+  // Since you are on mobile, set to TRUE to disable the background downloader
+  // and rely on your manual installs from Step 1.
+  "typescript.disableAutomaticTypeAcquisition": true,
+
+  // 4. Force VS Code to use local Prettier
+  "prettier.requireConfig": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
+}

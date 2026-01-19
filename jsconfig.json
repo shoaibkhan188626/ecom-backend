@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "checkJs": false,
+    "moduleResolution": "node",
+    // This allows you to use absolute paths (e.g. import User from '@/models/User')
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "exclude": [
+    // Exclude node_modules from "project-wide scanning"
+    // BUT VS Code will still read them when you "import ... from ..."
+    "node_modules",
+    "dist"
+  ]
+}
