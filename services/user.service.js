@@ -13,3 +13,23 @@ export const getMe = async (userId) => {
   }
   return user;
 };
+
+export const getAllUsers = async ({ page = 1, limit = 20 }) => {
+  const skip = (page - 1) * limit;
+
+  const users = (await User.find().skip(skip).limit(limit)).sort({
+    createdAt: -1,
+  });
+
+  const total = await User.countDocuments();
+
+  return {
+    users,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
