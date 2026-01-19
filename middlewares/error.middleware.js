@@ -1,26 +1,24 @@
-import AppError from '../utils/appError.js';
+import AppError from "../utils/appError";
 
 const errorHandler = (err, req, res, next) => {
-  let error = err;
+  const statusCode = err.statusCode || 500;
+  const status = err.status || "error";
 
-  if (!(error instanceof AppError)) {
-    error = new AppError('Internal server error', 500);
+  if (process.env.NODE_ENV !== "test") {
+    console.error(err);
   }
 
-  const response = {
-    status: error.status,
-    message: error.message,
-  };
-
-  if (error.details) {
-    response.details = error.details;
+  if (err instanceof AppError) {
+    return res.status(statusCode).json({
+      status,
+      message: err.message,
+    });
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    response.stack = err.stack;
-  }
-
-  res.status(error.statusCode).json(response);
+  return res.status(500).json({
+    status: "error",
+    message: "Internal server error",
+  });
 };
 
 export default errorHandler;
