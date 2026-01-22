@@ -1,30 +1,21 @@
 import rateLimit from "express-rate-limit";
-import AppError from "../utils/appError";
+import RedisStore from "rate-limit-redis";
+import redis from "../services/redis.service.js";
 
-export const apiRateLimit = rateLimit({
+export const apiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
-  handler: (req, res, next) => {
-    next(
-      new AppError(
-        "Too many Requests from this IP, Please try again later",
-        429,
-      ),
-    );
-  },
+  store: new RedisStore({
+    sendCommand: (...args) => redis.call(...args),
+  }),
 });
 
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (req, res, next) => {
-    new AppError(
-      "Too many authentication attempts. Please wait and try again.",
-      429,
-    );
-  },
+  max: 10,
+  store: new RedisStore({
+    sendCommand: (...args) => redis.call(...args),
+  }),
 });

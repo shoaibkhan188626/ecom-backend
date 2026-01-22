@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import User from "../models/user.model.js";
 import AppError from "../utils/appError.js";
+import redis from "./redis.service.js";
 
 /* -------------------------------------------------
    TOKEN HELPERS
@@ -137,9 +138,8 @@ export const refreshAuthToken = async (refreshToken) => {
 };
 
 export const logoutUser = async (userId) => {
-  const user = await User.findById(userId).select("+refreshTokenHash");
-
-  if (!user) return;
-  user.refreshTokenHash = undefined;
-  await user.save();
+  await User.findByIdAndUpdate(userId, {
+    refreshTokenHash: undefined,
+  });
+  await redis.del(`user:${userId}`);
 };
