@@ -1,0 +1,13 @@
+import { PERMISSIONS } from "../utils/constants.js";
+
+export const ROLE_PERMISSION = {
+  user: [PERMISSIONS.PRODUCT_READ, PERMISSIONS.ORDER_READ],
+  support: [
+    PERMISSIONS.PRODUCT_READ,
+    PERMISSIONS.ORDER_READ,
+    PERMISSIONS.ORDER_UPDATE,
+    PERMISSIONS.USER_READ,
+  ],
+
+  admin: Object.values(PERMISSIONS),
+};
